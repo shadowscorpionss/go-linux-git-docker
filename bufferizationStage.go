@@ -31,16 +31,16 @@ func (bs *BufferizationStage) Process(exit <-chan bool, data <-chan int) <-chan 
 		for {
 			select {
 			case <-exit:
-				log.Println("bs: exit. breaking...")
+				log.Println("Bufferization: exit. breaking...")
 				return
 			case i, isChannelOpen := <-data:
 				if !isChannelOpen {
-					log.Println("bs: data channel is closed. breaking...")
+					log.Println("Bufferization: data channel is closed. breaking...")
 					return
 				}
 				//buffering
 				buffer.Push(i)
-				log.Printf("bs: +%d (%d)\n", i, buffer.Count())
+				log.Printf("Bufferization: +%d (%d)\n", i, buffer.Count())
 
 			}
 		}
@@ -54,22 +54,23 @@ func (bs *BufferizationStage) Process(exit <-chan bool, data <-chan int) <-chan 
 			select {
 
 			case <-exit:
-				log.Println("bs: exit. breaking...")
-
+				log.Println("Bufferization: exit. breaking...")
 				return
 			case <-time.After(bs.drainInterval):
-				da := buffer.Get()
+da := buffer.Get()
 				log.Print("bs: checking buffer data... ")
 
 				if da != nil {
+					log.Printf ("got %d item(s) \n", len(da))
+
 					for _, d := range da {
 						select {
 						case <-exit:
-							log.Println("bs: exit. breaking...")
+							log.Println("Bufferization: exit. breaking...")
 
 							return
 						case res <- d:
-							log.Printf("bs: -> %d \n", d)
+							log.Printf("Bufferization: -> %d \n", d)
 						}
 					}
 				} else {
