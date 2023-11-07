@@ -8,22 +8,50 @@ import (
 	"time"
 )
 
-// cycle buffer drain interval
-const bufferDrainInterval time.Duration = 30 * time.Second
+var (
+    // cycle buffer drain interval
+    bufferDrainInterval time.Duration
 
-// buffer max capacity
-const bufferSize int = 10
+    // buffer max capacity
+    bufferSize int
+)
 
-//issue:
-//Стадия фильтрации чисел, не кратных 3 (не пропускать такие числа), исключая также и 0.
-//Стадия буферизации данных в кольцевом буфере с интерфейсом, соответствующим тому,
-//который был дан в качестве задания в 19 модуле. В этой стадии предусмотреть опустошение
-//буфера (и соответственно, передачу этих данных, если они есть, дальше) с определённым
-//интервалом во времени. Значения размера буфера и этого интервала времени
-//сделать настраиваемыми (как мы делали: через константы или глобальные переменные).
+const (
+    BREAK_WORD = "exit"
+)
 
 func main() {
+	var (
+        err             error
+        intervalSeconds int
+    )
+
+	//logging output set
 	log.SetOutput(os.Stdout)
+
+	//enter buffer params block
+	icr := NewIntConsoleReader()
+
+    bufferSize, err = icr.Read("Enter integer (>=1) buffer size  or type '"+BREAK_WORD+"'", BREAK_WORD)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    if bufferSize < 1 {
+        fmt.Println("Too small buffer. Might be at least 1")
+    }
+
+    intervalSeconds, err = icr.Read("Enter integer (>=1) buffer drain interval in seconds or type '"+BREAK_WORD+"'", BREAK_WORD)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    if intervalSeconds < 1 {
+        fmt.Println("Too small interval. Might be at least 1")
+        return
+    }
+    bufferDrainInterval = time.Duration(intervalSeconds) * time.Second
+	//--end buffer params block
 
 	//create pipeline
 	pl := NewPipeline(
