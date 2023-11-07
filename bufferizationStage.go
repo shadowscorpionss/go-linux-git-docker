@@ -8,13 +8,13 @@ import (
 type BufferizationStage struct {
 	cap           int           //capacity of buffer
 	drainInterval time.Duration //buffer drain interval
-	buffer        *CycleIntBuffer
+	buffer        *IntRingBuffer
 }
 
 func NewBufferizationStage(capacity int, drainInterval time.Duration) Stage {
 	return &BufferizationStage{
 		cap:           capacity,
-		buffer:        NewCycleIntBuffer(capacity),
+		buffer:        NewIntRingBuffer(capacity),
 		drainInterval: drainInterval,
 	}
 
@@ -39,9 +39,8 @@ func (bs *BufferizationStage) Process(exit <-chan bool, data <-chan int) <-chan 
 					return
 				}
 				//buffering
-				buffer.Push(i)
+				buffer.Add(i)
 				log.Printf("Bufferization: +%d (%d)\n", i, buffer.Count())
-
 			}
 		}
 
@@ -57,7 +56,7 @@ func (bs *BufferizationStage) Process(exit <-chan bool, data <-chan int) <-chan 
 				log.Println("Bufferization: exit. breaking...")
 				return
 			case <-time.After(bs.drainInterval):
-da := buffer.Get()
+				da := buffer.GetAll()
 				log.Print("bs: checking buffer data... ")
 
 				if da != nil {
