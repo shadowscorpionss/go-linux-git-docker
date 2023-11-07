@@ -57,10 +57,10 @@ func (bs *BufferizationStage) Process(exit <-chan bool, data <-chan int) <-chan 
 				return
 			case <-time.After(bs.drainInterval):
 				da := buffer.GetAll()
-				log.Print("bs: checking buffer data... ")
+				log.Print("Bufferization: checking buffer data... ")
 
 				if da != nil {
-					log.Printf ("got %d item(s) \n", len(da))
+					log.Printf("got %d item(s) \n", len(da))
 
 					for _, d := range da {
 						select {
