@@ -39,6 +39,7 @@ func main() {
     }
     if bufferSize < 1 {
         fmt.Println("Too small buffer. Might be at least 1")
+		return
     }
 
     intervalSeconds, err = icr.Read("Enter integer (>=1) buffer drain interval in seconds or type '"+BREAK_WORD+"'", BREAK_WORD)
